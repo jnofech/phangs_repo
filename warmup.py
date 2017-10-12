@@ -21,4 +21,8 @@ plt.plot(np.ravel(I_mom0), np.ravel(sigma), 'k.')
 plt.xlabel('$I_{mom0}$')
 plt.ylabel('$\sigma$')
 plt.title('Line Width vs mom0 Plot')
+plt.xscale('log')
+plt.yscale('log')
+
+plt.savefig('warmup_linewidth_vs_mom0.png')
 
