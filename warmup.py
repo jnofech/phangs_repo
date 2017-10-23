@@ -19,6 +19,7 @@ I_max = fits.getdata('ngc1672_co21_12m+7m+tp_tpeak.fits')
 
 
 # Calculate line width, sigma; and surface density, Sigma.
+alpha = 6.7
 sigma = I_mom0 / (np.sqrt(2*np.pi * I_max))
 Sigma = alpha*I_mom0
 # Importing radius of each data point.
@@ -51,16 +52,33 @@ plt.savefig('warmup_linewidth_vs_radius.png')
 plt.clf()
 
 
+
+
 # Create log arrays for sigma, Sigma, and radius.
 logsigma = np.log10(sigma)
 logSigma = np.log10(Sigma)
 logR = np.log10(rad.value)
 
+# Deleting any values that are not finite
+index = np.arange(logsigma.size)
+a = np.isfinite(logsigma)==False      # A boolean array that is True where logsigma is nan or inf.
+b = np.isfinite(logSigma)==False
+c = np.isfinite(logR) == False        # A bool. array that is True where logsigma, logSigma, OR logR is nan or inf.
+logsigma_clean = np.delete(logsigma, index[a+b+c])
+logSigma_clean = np.delete(logSigma, index[a+b+c])
+logR_clean = np.delete(logR, index[a+b+c])
 
-# Creating and saving dataframe for logsigma, logSigma, and logR.
+# Overwriting the main arrays with the cleaned versions
+logsigma = logsigma_clean
+logSigma = logSigma_clean
+logR = logR_clean
+
+
+
+# Creating and saving a dataframe of logsigma, logSigma, logR
 dataframe = pd.DataFrame(data=zip(np.ravel(logsigma), np.ravel(logSigma), np.ravel(logR)), columns = ["$log(\sigma)$", "$log(\Sigma)$", "$log(R)$"])
 dataframe.to_csv('sigma_Sigma_R.csv',index=False,header=False)
-# Loading this same dataframe (just for testing).
+# Reloading this same dataframe, just for kicks
 df = pd.read_csv('sigma_Sigma_R.csv', names = ['logsigma','logSigma','logR'])
 
 
