@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 %matplotlib inline
 import math
+from scipy import ndimage, misc
 
 import astropy.io.fits as fits
 import astropy.units as u
@@ -15,7 +16,10 @@ import statsmodels.formula.api as smf
 
 # Import data from .fits files.
 I_mom0 = fits.getdata('ngc1672_co21_12m+7m+tp_mom0.fits')
+I_mom1 = fits.getdata('ngc1672_co21_12m+7m+tp_mom1.fits')      # Intensity-weighted mean velocity of data.
 I_max = fits.getdata('ngc1672_co21_12m+7m+tp_tpeak.fits')
+
+sobel = ndimage.sobel(I_mom1)        # Sobel image gradient of I_mom1. Highlights edges.
 
 
 # Calculate line width, sigma; and surface density, Sigma.
@@ -40,6 +44,17 @@ plt.yscale('log')
 plt.savefig('warmup_linewidth_vs_mom0.png')
 plt.clf()
 
+# Plotting sigma vs a Sobel image gradient of the intensity-weighted velocity (mom1).
+plt.legend(loc='lower right')
+plt.plot(np.ravel(sobel), np.ravel(sigma), 'k.')
+plt.xlabel('Sobel Gradient of Intensity-Weighted Mean Velocity')
+plt.ylabel('$\sigma$')
+plt.title('Line Width vs Sobel Gradient of Intensity-Weighted Mean Velocity')
+#plt.xscale('log')
+#plt.yscale('log')
+
+plt.savefig('warmup_linewidth_vs_mom1.png')
+#plt.clf()
 
 # Plotting sigma vs radius.
 plt.legend(loc='lower right')
