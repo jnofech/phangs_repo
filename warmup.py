@@ -13,15 +13,6 @@ from pandas import DataFrame, read_csv
 import pandas as pd
 import statsmodels.formula.api as smf
 
-
-# Import data from .fits files.
-I_mom0 = fits.getdata('ngc1672_co21_12m+7m+tp_mom0.fits')
-I_mom1 = fits.getdata('ngc1672_co21_12m+7m+tp_mom1.fits')      # Intensity-weighted mean velocity of data.
-I_max = fits.getdata('ngc1672_co21_12m+7m+tp_tpeak.fits')
-
-sobel = ndimage.sobel(I_mom1)        # Sobel image gradient of I_mom1. Highlights edges.
-
-
 # Calculate line width, sigma; and surface density, Sigma.
 alpha = 6.7
 sigma = I_mom0 / (np.sqrt(2*np.pi * I_max))
@@ -31,6 +22,21 @@ gal = Galaxy('NGC1672')
 hdr = fits.getheader('ngc1672_co21_12m+7m+tp_mom0.fits')
 rad = gal.radius(header=hdr)
 rad = (rad * u.Mpc.to(u.kpc)) * u.kpc / u.Mpc           # Converts rad from Mpc to kpc.
+# Calculating width of each pixel, in parsecs.
+pixsizes_deg = wcs.utils.proj_plane_pixel_scales(wcs.WCS(hdr))     # The size of each pixel, in degrees. Ignore that third dimension; that's pixel size for the speed.
+pixsizes = pixsizes_deg[0] * np.pi / 180.
+pcperpixel =  pixsizes*d      # Number of parsecs per pixel.
+
+
+
+# Import data from .fits files.
+I_mom0 = fits.getdata('ngc1672_co21_12m+7m+tp_mom0.fits')
+I_mom1 = fits.getdata('ngc1672_co21_12m+7m+tp_mom1.fits')      # Intensity-weighted mean velocity of data.
+I_max = fits.getdata('ngc1672_co21_12m+7m+tp_tpeak.fits')
+
+sobel = ndimage.sobel(I_mom1/pcperpixel)        # Sobel image gradient of I_mom1. Highlights edges.
+
+
 
 # Plotting sigma versus the mom0 intensity.
 plt.legend(loc='lower right')
@@ -47,14 +53,14 @@ plt.clf()
 # Plotting sigma vs a Sobel image gradient of the intensity-weighted velocity (mom1).
 plt.legend(loc='lower right')
 plt.plot(np.ravel(sobel), np.ravel(sigma), 'k.')
-plt.xlabel('Sobel Gradient of Intensity-Weighted Mean Velocity')
+plt.xlabel('Sobel Gradient of Intensity-Weighted Mean Velocity (km/s/pc)')
 plt.ylabel('$\sigma$')
 plt.title('Line Width vs Sobel Gradient of Intensity-Weighted Mean Velocity')
-#plt.xscale('log')
-#plt.yscale('log')
+plt.xscale('log')
+plt.yscale('log')
 
 plt.savefig('warmup_linewidth_vs_mom1.png')
-#plt.clf()
+plt.clf()
 
 # Plotting sigma vs radius.
 plt.legend(loc='lower right')
