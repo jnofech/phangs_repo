@@ -33,9 +33,9 @@ beam = hdr['BMAJ']                                      # Beam size, in degrees
 beam = beam * pcperdeg                                  # Beam size, in pc
 
 # Import data from .fits files.
-I_mom0 = fits.getdata('ngc1672_co21_12m+7m+tp_mom0.fits')
-I_mom1 = fits.getdata('ngc1672_co21_12m+7m+tp_mom1.fits')      # Intensity-weighted mean velocity of data, in km/s/pixel.
-I_max = fits.getdata('ngc1672_co21_12m+7m+tp_tpeak.fits')
+I_mom0 = fits.getdata('ngc1672_co21_12m+7m+tp_mom0.fits')      # Mass density at each pixel.
+I_mom1 = fits.getdata('ngc1672_co21_12m+7m+tp_mom1.fits')      # Intensity-weighted mean velocity of data, in km/s.
+I_max = fits.getdata('ngc1672_co21_12m+7m+tp_tpeak.fits')      # Line-integrated intensity (in K*km/s).
 gradv = ndimage.sobel(I_mom1/pcperpixel)              # Sobel gradient of I_mom1; = grad(mean velocity), in km/s/pc
 gradvl = ndimage.sobel(I_mom1 * beam / pcperpixel)    # Sobel gradient of I_mom1 * beam width, in km/s
 
